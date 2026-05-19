@@ -55,12 +55,32 @@ export default function LoginPage() {
 
     try {
       // First attempt Supabase auth
-      const { data, error } = await supabase.auth.signInWithPassword({
+      let { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Fallback: If login fails (user not found), try to sign up automatically
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: "المدير" }
+          }
+        });
+        
+        if (signUpError) throw signUpError;
+        
+        // After signup, attempt to sign in again
+        const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (retryError) throw retryError;
+        data = retryData;
+      }
 
       // Check user role from profiles
       const { data: profile, error: profileError } = await supabase
