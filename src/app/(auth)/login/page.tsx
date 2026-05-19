@@ -82,6 +82,8 @@ export default function LoginPage() {
         data = retryData;
       }
 
+      if (!data.user) throw new Error("فشل تسجيل الدخول: المستخدم غير موجود");
+
       // Check user role from profiles
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
