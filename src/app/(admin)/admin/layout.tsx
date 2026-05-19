@@ -14,7 +14,8 @@ import {
   ShieldCheck,
   ReceiptText,
   Wallet,
-  Settings
+  Settings,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase/client";
@@ -28,6 +29,7 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   { name: "لوحة التحكم", href: "/admin", icon: LayoutDashboard },
+  { name: "إدارة الكاشيرية", href: "/admin/cashiers", icon: Users },
   { name: "إدارة المخزن", href: "/admin/inventory", icon: Package },
   { name: "سجل المبيعات", href: "/admin/sales", icon: ReceiptText },
   { name: "المصروفات", href: "/admin/expenses", icon: Wallet },

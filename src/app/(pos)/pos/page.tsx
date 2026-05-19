@@ -137,15 +137,24 @@ export default function POSPage() {
     }
 
     try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, role")
-        .eq("id", session.user.id)
-        .single();
+      const cachedRole = localStorage.getItem("pos_role");
+      const cachedUser = localStorage.getItem("pos_user");
       
-      if (profile) {
-        setCashierName(profile.full_name || "كاشير النظام");
-        setIsAdmin(profile.role === "admin");
+      if (cachedRole === "cashier" && cachedUser) {
+        const u = JSON.parse(cachedUser);
+        setCashierName(u.name || "الكاشير");
+        setIsAdmin(false);
+      } else {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name, role")
+          .eq("id", session.user.id)
+          .single();
+        
+        if (profile) {
+          setCashierName(profile.full_name || "كاشير النظام");
+          setIsAdmin(profile.role === "admin");
+        }
       }
 
       const { data: prodData, error } = await supabase
@@ -306,10 +315,18 @@ export default function POSPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
+      const cachedUser = localStorage.getItem("pos_user");
+      let posCashierId = null;
+      if (cachedUser) {
+        const u = JSON.parse(cachedUser);
+        posCashierId = u.id || null;
+      }
+      
       const { data: saleData, error: saleError } = await supabase
         .from("sales")
         .insert([{
           cashier_id: user?.id,
+          pos_cashier_id: posCashierId,
           total_price,
           discount
         }])
